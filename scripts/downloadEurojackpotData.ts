@@ -20,8 +20,8 @@ interface EurojackpotNumbers {
   prizeDistribution: Record<string, number>;
 }
 
-// GitHub raw content URL for the results.json file
-const url = 'https://raw.githubusercontent.com/SlashGordon/howtolosemoneyfast/main/results.json';
+// GitHub raw content URL for the eurojackpot_results.json file
+const url = 'https://raw.githubusercontent.com/SlashGordon/howtolosemoneyfast/main/eurojackpot_results.json';
 
 export async function downloadEurojackpotData() {
   console.log('Downloading Eurojackpot data...');
@@ -57,7 +57,7 @@ export async function downloadEurojackpotData() {
           }
 
           // Generate TypeScript file content
-          const tsContent = `import type { EurojackpotNumbers } from '../types/eurojackpot';\n\n// Historical EuroJackpot data\n// Auto-generated from https://github.com/SlashGordon/howtolosemoneyfast/blob/main/results.json\nexport const historicalDraws: EurojackpotNumbers[] = ${JSON.stringify(eurojackpotData, null, 2)};\n`;
+          const tsContent = `import type { EurojackpotNumbers } from '../types/eurojackpot';\n\n// Historical EuroJackpot data\n// Auto-generated from https://github.com/SlashGordon/howtolosemoneyfast/blob/main/eurojackpot_results.json\nexport const historicalDraws: EurojackpotNumbers[] = ${JSON.stringify(eurojackpotData, null, 2)};\n`;
 
           // Write to file
           fs.writeFileSync(outputPath, tsContent);

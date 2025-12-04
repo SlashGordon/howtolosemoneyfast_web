@@ -1,7 +1,7 @@
 import type { EurojackpotNumbers } from '../types/eurojackpot';
 
 // Historical EuroJackpot data
-// Auto-generated from https://github.com/SlashGordon/howtolosemoneyfast/blob/main/results.json
+// Auto-generated from https://github.com/SlashGordon/howtolosemoneyfast/blob/main/eurojackpot_results.json
 export const historicalDraws: EurojackpotNumbers[] = [
   {
     "mainNumbers": [
