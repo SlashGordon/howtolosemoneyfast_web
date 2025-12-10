@@ -1,0 +1,16 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import LotteryPage from '../../components/LotteryPage.astro';
+---
+
+<Layout title="Lotto 6 aus 49 Analysis Tool | Track Your Spending & Losses" description="Analyze your Lotto 6 aus 49 lottery spending with our free calculator. Track losses, compare with investments, and understand the real cost of lottery tickets." lang="en">
+  <LotteryPage lotteryType="lotto6aus49" />
+</Layout>
+
+<script>
+  import { i18n } from '../../i18n/i18n';
+  
+  document.addEventListener('DOMContentLoaded', () => {
+    i18n.init();
+  });
+</script>

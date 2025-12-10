@@ -28,13 +28,20 @@ export function initializeHistoryPage(
   downloadFilename: string,
   historicalDraws: EurojackpotNumbers[]
 ): void {
+  console.log('[initializeHistoryPage] Starting with', historicalDraws.length, 'draws');
+  console.log('[initializeHistoryPage] First draw:', historicalDraws[0]);
+  
   setupDownloadButton(downloadFilename, historicalDraws);
   setupCopyButton(translations, historicalDraws);
 
   // Initialize charts and statistics
+  console.log('[initializeHistoryPage] Calling initializeCharts');
   initializeCharts(translations, historicalDraws);
+  console.log('[initializeHistoryPage] Calling displayHotColdNumbers');
   displayHotColdNumbers(historicalDraws);
+  console.log('[initializeHistoryPage] Calling displayPairAnalysis');
   displayPairAnalysis(historicalDraws);
+  console.log('[initializeHistoryPage] All initialization complete');
 }
 
 
@@ -87,15 +94,27 @@ function initializeCharts(
   translations: Translations,
   historicalDraws: EurojackpotNumbers[]
 ): void {
+  console.log('[initializeCharts] Starting with', historicalDraws.length, 'draws');
+  
+  // Detect ranges from data
+  const mainNumbers = historicalDraws.flatMap(d => d.mainNumbers || (d as any).regular_numbers || []);
+  const euroNumbers = historicalDraws.flatMap(d => d.euroNumbers || (d as any).bonus_numbers || []);
+  
+  console.log('[initializeCharts] Main numbers array:', mainNumbers.slice(0, 10), '... Total:', mainNumbers.length);
+  console.log('[initializeCharts] Euro numbers array:', euroNumbers.slice(0, 10), '... Total:', euroNumbers.length);
+  
+  const maxMain = Math.max(...mainNumbers, 50);
+  const maxEuro = Math.max(...euroNumbers, 12);
+  
   // Calculate frequency of main numbers
   const mainNumberFrequency: NumberFrequency = {};
-  for (let i = 1; i <= 50; i++) {
+  for (let i = 1; i <= maxMain; i++) {
     mainNumberFrequency[i] = 0;
   }
   
   // Calculate frequency of euro numbers
   const euroNumberFrequency: NumberFrequency = {};
-  for (let i = 1; i <= 12; i++) {
+  for (let i = 0; i <= maxEuro; i++) {
     euroNumberFrequency[i] = 0;
   }
   
@@ -105,19 +124,21 @@ function initializeCharts(
   const euroSums: number[] = [];
   
   historicalDraws.forEach(draw => {
-    // Count main numbers
-    draw.mainNumbers.forEach(num => {
-      mainNumberFrequency[num]++;
+    // Count main numbers (support both formats)
+    const mains = draw.mainNumbers || (draw as any).regular_numbers || [];
+    mains.forEach((num: number) => {
+      if (mainNumberFrequency[num] !== undefined) mainNumberFrequency[num]++;
     });
     
-    // Count euro numbers
-    draw.euroNumbers.forEach(num => {
-      euroNumberFrequency[num]++;
+    // Count euro numbers (support both formats)
+    const euros = draw.euroNumbers || (draw as any).bonus_numbers || [];
+    euros.forEach((num: number) => {
+      if (euroNumberFrequency[num] !== undefined) euroNumberFrequency[num]++;
     });
     
     // Calculate sums for trend chart
-    const mainSum = draw.mainNumbers.reduce((sum, num) => sum + num, 0);
-    const euroSum = draw.euroNumbers.reduce((sum, num) => sum + num, 0);
+    const mainSum = mains.reduce((sum: number, num: number) => sum + num, 0);
+    const euroSum = euros.reduce((sum: number, num: number) => sum + num, 0);
     
     const date = new Date(draw.date || '');
     const formattedDate = date.toLocaleDateString(navigator.language, { 
@@ -341,27 +362,42 @@ function createSumTrendsChart(
 }
 
 function displayHotColdNumbers(historicalDraws: EurojackpotNumbers[]): void {
+  console.log('[displayHotColdNumbers] Starting with', historicalDraws.length, 'draws');
+  
+  // Detect ranges from data
+  const mainNumbers = historicalDraws.flatMap(d => d.mainNumbers || (d as any).regular_numbers || []);
+  const euroNumbers = historicalDraws.flatMap(d => d.euroNumbers || (d as any).bonus_numbers || []);
+  
+  console.log('[displayHotColdNumbers] Total main numbers:', mainNumbers.length, 'Total euro numbers:', euroNumbers.length);
+  
+  const maxMain = Math.max(...mainNumbers, 50);
+  const maxEuro = Math.max(...euroNumbers, 12);
+  
+  console.log('[displayHotColdNumbers] Max main:', maxMain, 'Max euro:', maxEuro);
+  
   // Calculate frequency of main numbers
   const mainNumberFrequency: NumberFrequency = {};
-  for (let i = 1; i <= 50; i++) {
+  for (let i = 1; i <= maxMain; i++) {
     mainNumberFrequency[i] = 0;
   }
   
   // Calculate frequency of euro numbers
   const euroNumberFrequency: NumberFrequency = {};
-  for (let i = 1; i <= 12; i++) {
+  for (let i = 0; i <= maxEuro; i++) {
     euroNumberFrequency[i] = 0;
   }
   
   historicalDraws.forEach(draw => {
-    // Count main numbers
-    draw.mainNumbers.forEach(num => {
-      mainNumberFrequency[num]++;
+    // Count main numbers (support both formats)
+    const mains = draw.mainNumbers || (draw as any).regular_numbers || [];
+    mains.forEach((num: number) => {
+      if (mainNumberFrequency[num] !== undefined) mainNumberFrequency[num]++;
     });
     
-    // Count euro numbers
-    draw.euroNumbers.forEach(num => {
-      euroNumberFrequency[num]++;
+    // Count euro numbers (support both formats)
+    const euros = draw.euroNumbers || (draw as any).bonus_numbers || [];
+    euros.forEach((num: number) => {
+      if (euroNumberFrequency[num] !== undefined) euroNumberFrequency[num]++;
     });
   });
   
@@ -383,6 +419,11 @@ function displayHotColdNumbers(historicalDraws: EurojackpotNumbers[]): void {
   const coldMainNumbers = sortedMainNumbers.slice(-5).reverse();
   const coldEuroNumbers = sortedEuroNumbers.slice(-3).reverse();
   
+  console.log('[displayHotColdNumbers] Hot main:', hotMainNumbers);
+  console.log('[displayHotColdNumbers] Hot euro:', hotEuroNumbers);
+  console.log('[displayHotColdNumbers] Cold main:', coldMainNumbers);
+  console.log('[displayHotColdNumbers] Cold euro:', coldEuroNumbers);
+  
   displayNumbersInContainer('hotMainNumbers', hotMainNumbers, 'red-500');
   displayNumbersInContainer('hotEuroNumbers', hotEuroNumbers, 'yellow-500');
   displayNumbersInContainer('coldMainNumbers', coldMainNumbers, 'red-900');
@@ -394,8 +435,10 @@ function displayNumbersInContainer(
   numbers: NumberWithFrequency[],
   colorClass: string
 ): void {
+  console.log(`[displayNumbersInContainer] ${containerId}: ${numbers.length} numbers to display`);
   const container = document.getElementById(containerId);
   if (container) {
+    console.log(`[displayNumbersInContainer] Found container ${containerId}`);
     numbers.forEach(item => {
       const numberBall = document.createElement('div');
       numberBall.className = 'flex flex-col items-center';
@@ -414,6 +457,8 @@ function displayNumbersInContainer(
       `;
       container.appendChild(numberBall);
     });
+  } else {
+    console.warn(`[displayNumbersInContainer] Container ${containerId} not found!`);
   }
 }
 
@@ -424,8 +469,8 @@ function displayPairAnalysis(historicalDraws: EurojackpotNumbers[]): void {
   const euroPairFrequency: { [key: string]: number } = {};
   
   historicalDraws.forEach(draw => {
-    const mainNumbers = draw.mainNumbers.sort((a, b) => a - b);
-    const euroNumbers = draw.euroNumbers.sort((a, b) => a - b);
+    const mainNumbers = (draw.mainNumbers || (draw as any).regular_numbers || []).slice().sort((a: number, b: number) => a - b);
+    const euroNumbers = (draw.euroNumbers || (draw as any).bonus_numbers || []).slice().sort((a: number, b: number) => a - b);
     
     // Generate all pairs from main numbers
     for (let i = 0; i < mainNumbers.length - 1; i++) {

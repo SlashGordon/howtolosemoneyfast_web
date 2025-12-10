@@ -1,0 +1,13 @@
+---
+import EurojackpotComponent from './EurojackpotComponent.astro';
+import Lotto6aus49Component from './Lotto6aus49Component.astro';
+
+interface Props {
+  lotteryType: string;
+}
+
+const { lotteryType } = Astro.props;
+---
+
+{lotteryType === 'eurojackpot' && <EurojackpotComponent />}
+{lotteryType === 'lotto6aus49' && <Lotto6aus49Component />}

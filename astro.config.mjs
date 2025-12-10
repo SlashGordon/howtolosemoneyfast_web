@@ -1,13 +1,13 @@
 import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
-import eurojackpotIntegration from './scripts/eurojackpot-integration';
+import lotteryIntegration from './scripts/lottery-integration';
 
 export default defineConfig({
   site: 'https://howtolosemoneyfast.com',
   integrations: [
     tailwind(),
-    eurojackpotIntegration(),
+    lotteryIntegration(),
     sitemap({
       i18n: {
         defaultLocale: 'en',
@@ -62,6 +62,9 @@ export default defineConfig({
     },
     optimizeDeps: {
       exclude: []
+    },
+    ssr: {
+      noExternal: ['@astrojs/internal-helpers']
     }
   }
 });

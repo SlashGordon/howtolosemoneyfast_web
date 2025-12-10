@@ -1,0 +1,44 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import HistoryPageComponent from '../../../components/HistoryPageComponent.astro';
+import { getHistoricalDraws } from '../../../data/historicalLotto6aus49';
+
+const translations = {
+  backToHome: "← Volver al inicio",
+  title: "Historial de Lotto 6 aus 49",
+  description: "Registro histórico completo de todos los sorteos de Lotto 6 aus 49.",
+  downloadJson: "Descargar como JSON",
+  copyClipboard: "Copiar al portapapeles",
+  mainNumbersFreq: "Frecuencia de números regulares",
+  euroNumbersFreq: "Frecuencia de números de bonificación",
+  sumTrends: "Tendencias de suma a lo largo del tiempo",
+  hotColdNumbers: "Números calientes y fríos",
+  hotMainNumbers: "Números regulares calientes",
+  hotEuroNumbers: "Números de bonificación calientes",
+  coldMainNumbers: "Números regulares fríos",
+  coldEuroNumbers: "Números de bonificación fríos",
+  historicalDraws: "Sorteos históricos",
+  date: "Fecha",
+  mainNumbers: "Números regulares",
+  euroNumbers: "Números de bonificación",
+  frequency: "Frecuencia",
+  mainNumbersSum: "Suma de números regulares",
+  euroNumbersSum: "Suma de números de bonificación",
+  number: "Número",
+  copiedSuccess: "¡Datos JSON copiados al portapapeles!",
+  copyError: "Error al copiar al portapapeles. Por favor, inténtelo de nuevo.",
+  pairAnalysis: "Análisis de pares",
+  mostCommonPairs: "Pares más comunes",
+  mostCommonTriplets: "Tripletes más comunes",
+  mostCommonEuroPairs: "Pares de bonificación más comunes",
+  pair: "Par",
+  triplet: "Triplete",
+  occurrences: "Ocurrencias"
+};
+
+const historicalDraws = await getHistoricalDraws();
+---
+
+<Layout title="Datos históricos y estadísticas de Lotto 6 aus 49 | Historial completo de sorteos" description="Acceda a datos históricos completos de Lotto 6 aus 49. Vea estadísticas de sorteos, frecuencias de números, números calientes/fríos y descargue datos JSON para análisis.">
+  <HistoryPageComponent lang="es" translations={translations} lotteryType="lotto6aus49" historicalDraws={historicalDraws} />
+</Layout>

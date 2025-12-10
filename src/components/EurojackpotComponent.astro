@@ -1,121 +1,19 @@
 ---
-// This is just a placeholder component that renders the HTML structure
-// The actual functionality will be handled by the client-side JavaScript
+// The TypeScript component `EurojackpotComponent` handles all rendering.
+// This Astro component only provides the root element for initialization.
 ---
 
-<div class="bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-700 p-6 mb-8">
-  <h2 class="text-2xl font-bold mb-4 text-red-300" data-i18n="eurojackpot.title">EuroJackpot Number Checker</h2>
-  <p class="text-gray-300 mb-6" data-i18n="eurojackpot.description">Enter your EuroJackpot numbers to see if they match any historical draws.</p>
-  
-  <div class="flex flex-wrap lg:flex-nowrap gap-6">
-    <form id="eurojackpot-form" class="mb-6 flex-1">
-      <div class="mb-6">
-        <label for="main-numbers-group" class="block text-gray-300 mb-3 text-sm font-medium" data-i18n="eurojackpot.mainNumbers">Main Numbers (5 numbers from 1-50)</label>
-        <div id="main-numbers-group" class="flex flex-wrap gap-3 mb-2">
-          <input type="number" id="main-number-1" min="1" max="50" class="w-16 px-3 py-2 bg-gray-800 border-b-2 border-red-400 focus:border-red-300 outline-none text-white text-center transition-all" required aria-label="Main number 1" title="Enter a number between 1 and 50">
-          <input type="number" id="main-number-2" min="1" max="50" class="w-16 px-3 py-2 bg-gray-800 border-b-2 border-red-400 focus:border-red-300 outline-none text-white text-center transition-all" required aria-label="Main number 2" title="Enter a number between 1 and 50">
-          <input type="number" id="main-number-3" min="1" max="50" class="w-16 px-3 py-2 bg-gray-800 border-b-2 border-red-400 focus:border-red-300 outline-none text-white text-center transition-all" required aria-label="Main number 3" title="Enter a number between 1 and 50">
-          <input type="number" id="main-number-4" min="1" max="50" class="w-16 px-3 py-2 bg-gray-800 border-b-2 border-red-400 focus:border-red-300 outline-none text-white text-center transition-all" required aria-label="Main number 4" title="Enter a number between 1 and 50">
-          <input type="number" id="main-number-5" min="1" max="50" class="w-16 px-3 py-2 bg-gray-800 border-b-2 border-red-400 focus:border-red-300 outline-none text-white text-center transition-all" required aria-label="Main number 5" title="Enter a number between 1 and 50">
-        </div>
-      </div>
-      
-      <div class="mb-6">
-        <label for="euro-numbers-group" class="block text-gray-300 mb-3 text-sm font-medium" data-i18n="eurojackpot.euroNumbers">Euro Numbers (2 numbers from 1-12)</label>
-        <div id="euro-numbers-group" class="flex gap-3 mb-2">
-          <input type="number" id="euro-number-1" min="1" max="12" class="w-16 px-3 py-2 bg-gray-800 border-b-2 border-yellow-400 focus:border-yellow-300 outline-none text-white text-center transition-all" required aria-label="Euro number 1" title="Enter a number between 1 and 12">
-          <input type="number" id="euro-number-2" min="1" max="12" class="w-16 px-3 py-2 bg-gray-800 border-b-2 border-yellow-400 focus:border-yellow-300 outline-none text-white text-center transition-all" required aria-label="Euro number 2" title="Enter a number between 1 and 12">
-        </div>
-      </div>
-      
-      <div class="mb-6">
-        <label for="ticket-price" class="block text-gray-300 mb-3 text-sm font-medium" data-i18n="eurojackpot.ticketPrice">Ticket Price (€)</label>
-        <div class="flex gap-3 mb-2">
-          <input type="number" id="ticket-price" min="0" step="0.10" value="2.60" class="w-24 px-3 py-2 bg-gray-800 border-b-2 border-green-400 focus:border-green-300 outline-none text-white text-center transition-all" aria-label="Ticket price in euros" title="Enter the ticket price">
-        </div>
-      </div>
-      
-      <div class="mb-6">
-        <label for="date-range-group" class="block text-gray-300 mb-3 text-sm font-medium" data-i18n="eurojackpot.dateRange">Date Range (Optional)</label>
-        <div id="date-range-group" class="flex flex-wrap gap-3 mb-2">
-          <div>
-            <label for="start-date" class="text-xs text-gray-400 mb-1 block" data-i18n="eurojackpot.startDate">Start Date</label>
-            <input type="date" id="start-date" class="w-40 px-3 py-2 bg-gray-800 border-b-2 border-blue-400 focus:border-blue-300 outline-none text-white text-center transition-all" aria-label="Start date" title="Select start date">
-          </div>
-          <div>
-            <label for="end-date" class="text-xs text-gray-400 mb-1 block" data-i18n="eurojackpot.endDate">End Date</label>
-            <input type="date" id="end-date" class="w-40 px-3 py-2 bg-gray-800 border-b-2 border-blue-400 focus:border-blue-300 outline-none text-white text-center transition-all" aria-label="End date" title="Select end date">
-          </div>
-        </div>
-      </div>
-      
-      <div class="flex flex-wrap gap-3">
-        <button type="submit" class="inline-flex bg-red-500 hover:bg-red-600 text-white font-medium py-3 px-6 rounded-md transition-all duration-300 shadow-md hover:shadow-lg items-center justify-center">
-          <span data-i18n="eurojackpot.saveCheck"></span>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
-          </svg>
-        </button>
-        <button type="button" id="bulk-import" class="inline-flex bg-purple-500 hover:bg-purple-600 text-white font-medium py-3 px-6 rounded-md transition-all duration-300 shadow-md hover:shadow-lg items-center justify-center">
-          <span data-i18n="eurojackpot.bulkImport"></span>
-        </button>
-      </div>
-    </form>
-    
-    <div id="overall-stats" class="bg-gray-700 rounded-lg p-4 shadow-md w-full lg:w-80 h-fit">
-      <h3 class="text-xl font-semibold mb-3 text-red-300" data-i18n="eurojackpot.overallStats">Overall Stats</h3>
-      <div class="space-y-4">
-        <div>
-          <p class="text-gray-300 text-sm mb-1" data-i18n="eurojackpot.totalTickets">Total Tickets</p>
-          <p class="text-2xl font-bold text-white" id="total-tickets">0</p>
-        </div>
-        <div>
-          <p class="text-gray-300 text-sm mb-1" data-i18n="eurojackpot.totalSpent">Total Spent</p>
-          <p class="text-2xl font-bold text-red-400" id="total-spent">€0.00</p>
-        </div>
-        <div>
-          <p class="text-gray-300 text-sm mb-1" data-i18n="eurojackpot.totalWon">Total Won</p>
-          <p class="text-2xl font-bold text-green-400" id="total-won">€0.00</p>
-        </div>
-        <div class="pt-2 border-t border-gray-600">
-          <p class="text-gray-300 text-sm mb-1" data-i18n="eurojackpot.netProfit">Net Profit/Loss</p>
-          <p class="text-2xl font-bold" id="net-profit">€0.00</p>
-        </div>
-        <div class="pt-2 border-t border-gray-600">
-          <p class="text-gray-300 text-sm mb-1" data-i18n="eurojackpot.bestWin">Best Win</p>
-          <p class="text-xl font-bold text-green-400" id="best-win">€0.00</p>
-          <p class="text-xs text-gray-400" id="best-win-date"></p>
-        </div>
-        <div>
-          <p class="text-gray-300 text-sm mb-1" data-i18n="eurojackpot.roi">Return on Investment</p>
-          <p class="text-xl font-bold" id="roi">0%</p>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <div id="saved-numbers" class="mb-6">
-    <h3 class="text-xl font-semibold mb-2 text-red-300" data-i18n="eurojackpot.savedNumbers">Your Saved Numbers</h3>
-    <div class="saved-numbers-list text-gray-300">
-      <!-- Saved numbers will be displayed here -->
-      <p class="text-gray-500 italic" data-i18n="eurojackpot.noNumbersSaved">No numbers saved yet.</p>
-    </div>
-  </div>
-  
-  <div id="results-container" class="hidden">
-    <h3 class="text-xl font-semibold mb-2 text-red-300" data-i18n="eurojackpot.results">Results</h3>
-    <div class="results-list">
-      <!-- Results will be displayed here -->
-    </div>
-  </div>
+<div id="eurojackpot-container">
+  <!-- The content will be rendered by eurojackpot.ts -->
 </div>
 
 <script>
-  import { EurojackpotComponent } from './eurojackpot';
+  import { EurojackpotComponentNew } from './eurojackpot';
   
   document.addEventListener('DOMContentLoaded', () => {
     try {
-      new EurojackpotComponent('eurojackpot-container');
+      // Initialize the component, which will populate the container above.
+      new EurojackpotComponentNew('eurojackpot-container');
     } catch (error) {
       console.error('Failed to initialize EuroJackpot component:', error);
     }

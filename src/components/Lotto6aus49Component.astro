@@ -1,0 +1,23 @@
+---
+// The TypeScript component `Lotto6aus49Component` handles all rendering.
+// This Astro component only provides the root element for initialization.
+---
+
+<div id="lotto6aus49-container">
+  <!-- The content will be rendered by lotto6aus49.ts -->
+</div>
+
+<script>
+  import { Lotto6aus49Component } from './lotto6aus49';
+  import { i18n } from '../i18n/i18n';
+  
+  document.addEventListener('DOMContentLoaded', () => {
+    try {
+      i18n.init();
+      // Initialize the component, which will populate the container above.
+      new Lotto6aus49Component('lotto6aus49-container');
+    } catch (error) {
+      console.error('Failed to initialize Lotto 6 aus 49 component:', error);
+    }
+  });
+</script>

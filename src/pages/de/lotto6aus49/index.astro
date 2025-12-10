@@ -1,0 +1,16 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import LotteryPage from '../../../components/LotteryPage.astro';
+---
+
+<Layout title="Lotto 6 aus 49 Analyse-Tool | Verfolgen Sie Ihre Ausgaben & Verluste" description="Analysieren Sie Ihre Lotto 6 aus 49 Lotterieausgaben mit unserem kostenlosen Rechner. Verfolgen Sie Verluste, vergleichen Sie mit Investitionen und verstehen Sie die wahren Kosten von Lottoscheinen." lang="de">
+  <LotteryPage lotteryType="lotto6aus49" />
+</Layout>
+
+<script>
+  import { i18n } from '../../../i18n/i18n';
+  
+  document.addEventListener('DOMContentLoaded', () => {
+    i18n.init();
+  });
+</script>

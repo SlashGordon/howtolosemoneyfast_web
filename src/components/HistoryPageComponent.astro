@@ -1,8 +1,10 @@
 ---
-import { historicalDraws } from '../data/historicalEurojackpot';
+import { initializeHistoryPage } from './historyPage';
 
 export interface Props {
   lang: string;
+  lotteryType?: string;
+  historicalDraws: any[];
   translations: {
     backToHome: string;
     title: string;
@@ -37,12 +39,17 @@ export interface Props {
   };
 }
 
-const { lang, translations } = Astro.props;
+const { lang, translations, historicalDraws, lotteryType = 'eurojackpot' } = Astro.props;
 const homeLink = lang === 'en' ? '/' : `/${lang}/`;
 const dateFormat = lang === 'en' ? 'en-US' : lang === 'de' ? 'de-DE' : 'es-ES';
 const downloadFilename = lang === 'en' ? 'eurojackpot-history.json' : 
                          lang === 'de' ? 'eurojackpot-historie.json' : 
                          'eurojackpot-historial.json';
+
+// Serialize data for client-side scripts
+const historicalDrawsJSON = JSON.stringify(historicalDraws);
+const translationsJSON = JSON.stringify(translations);
+const downloadFilenameJSON = JSON.stringify(downloadFilename);
 ---
 
 <style>
@@ -52,12 +59,13 @@ const downloadFilename = lang === 'en' ? 'eurojackpot-history.json' :
     transition: max-height 0.3s ease-in-out;
   }
   .year-content.expanded {
-    max-height: none; /* Remove height restriction */
+    max-height: none;
   }
 </style>
 
 <div class="container mx-auto px-4 py-16" 
   data-history-container
+  data-lottery-type={lotteryType}
   data-frequency={translations.frequency}
   data-number={translations.number}
   data-main-numbers-sum={translations.mainNumbersSum}
@@ -90,7 +98,6 @@ const downloadFilename = lang === 'en' ? 'eurojackpot-history.json' :
   
   <!-- Statistics Section -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-    <!-- Frequency Charts -->
     <div class="bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-700 p-6">
       <h2 class="text-2xl font-bold mb-4 text-red-300">{translations.mainNumbersFreq}</h2>
       <canvas id="mainNumbersChart" height="300"></canvas>
@@ -101,13 +108,11 @@ const downloadFilename = lang === 'en' ? 'eurojackpot-history.json' :
       <canvas id="euroNumbersChart" height="300"></canvas>
     </div>
     
-    <!-- Trends Over Time -->
     <div class="bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-700 p-6">
       <h2 class="text-2xl font-bold mb-4 text-blue-300">{translations.sumTrends}</h2>
       <canvas id="sumTrendsChart" height="300"></canvas>
     </div>
     
-    <!-- Hot and Cold Numbers -->
     <div class="bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-700 p-6">
       <h2 class="text-2xl font-bold mb-4 text-purple-300">{translations.hotColdNumbers}</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -130,7 +135,6 @@ const downloadFilename = lang === 'en' ? 'eurojackpot-history.json' :
       </div>
     </div>
     
-    <!-- Pair Analysis -->
     <div class="bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-700 p-6">
       <h2 class="text-2xl font-bold mb-4 text-orange-300">{translations.pairAnalysis}</h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -156,7 +160,6 @@ const downloadFilename = lang === 'en' ? 'eurojackpot-history.json' :
     
     <div class="space-y-4">
       {(() => {
-        // Group draws by year
         const drawsByYear = {};
         historicalDraws.forEach(draw => {
           if (draw.date) {
@@ -168,7 +171,6 @@ const downloadFilename = lang === 'en' ? 'eurojackpot-history.json' :
           }
         });
         
-        // Sort years in descending order (newest first)
         const years = Object.keys(drawsByYear).sort((a, b) => parseInt(b) - parseInt(a));
         
         return years.map(year => (
@@ -192,10 +194,7 @@ const downloadFilename = lang === 'en' ? 'eurojackpot-history.json' :
                 <table class="w-full text-left">
                   <thead>
                     <tr class="bg-gray-750">
-                      <th class="px-4 py-3 cursor-pointer hover:bg-gray-700 select-none" onclick={`sortTable('year-${year}', 0)`}>
-                        {translations.date} 
-                        <span class="ml-1 text-xs">↕</span>
-                      </th>
+                      <th class="px-4 py-3">{translations.date}</th>
                       <th class="px-4 py-3">{translations.mainNumbers}</th>
                       <th class="px-4 py-3">{translations.euroNumbers}</th>
                     </tr>
@@ -206,14 +205,14 @@ const downloadFilename = lang === 'en' ? 'eurojackpot-history.json' :
                         <td class="px-4 py-3 border-t border-gray-700">{new Date(draw.date || '').toLocaleDateString(dateFormat)}</td>
                         <td class="px-4 py-3 border-t border-gray-700">
                           <div class="flex flex-wrap gap-2">
-                            {draw.mainNumbers.map(num => (
+                            {(draw.mainNumbers || []).map(num => (
                               <span class="inline-block w-8 h-8 rounded-full bg-red-500 text-white text-center leading-8">{num}</span>
                             ))}
                           </div>
                         </td>
                         <td class="px-4 py-3 border-t border-gray-700">
                           <div class="flex flex-wrap gap-2">
-                            {draw.euroNumbers.map(num => (
+                            {(draw.euroNumbers || []).map(num => (
                               <span class="inline-block w-8 h-8 rounded-full bg-yellow-500 text-white text-center leading-8">{num}</span>
                             ))}
                           </div>
@@ -228,20 +227,32 @@ const downloadFilename = lang === 'en' ? 'eurojackpot-history.json' :
         ));
       })()}
     </div>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-        </div>
   </div>
 </div>
 
-<script>
-  import { initializeHistoryPage } from './historyPage';
-  import { historicalDraws } from '../data/historicalEurojackpot';
+<script define:vars={{ historicalDrawsJSON, translationsJSON, downloadFilenameJSON }} is:inline>
+  // Parse the data from JSON strings
+  const historicalDraws = JSON.parse(historicalDrawsJSON);
+  const translations = JSON.parse(translationsJSON);
+  const downloadFilename = JSON.parse(downloadFilenameJSON);
   
-  // Add sorting functionality
+  console.log('[HistoryPageComponent] Data received:');
+  console.log('  - Historical draws:', historicalDraws.length, 'records');
+  console.log('  - Translations:', Object.keys(translations).length, 'keys');
+  console.log('  - Download filename:', downloadFilename);
+  
+  // Store in window for the module script to access
+  window.historyPageData = {
+    historicalDraws,
+    translations,
+    downloadFilename
+  };
+  
+  console.log('[HistoryPageComponent] Data stored in window.historyPageData');
+  
+
+  const lotteryType = document.querySelector('[data-history-container]')?.getAttribute('data-lottery-type') || 'eurojackpot';
+  
   window.sortTable = function(tableId, columnIndex) {
     const table = document.querySelector(`#${tableId} table tbody`);
     if (!table) return;
@@ -253,39 +264,28 @@ const downloadFilename = lang === 'en' ? 'eurojackpot-history.json' :
       const aText = a.cells[columnIndex].textContent.trim();
       const bText = b.cells[columnIndex].textContent.trim();
       
-      // Convert localized date strings to ISO format for proper parsing
       const parseDate = (dateStr) => {
-        // Try different date formats
         const formats = [
-          // ISO format
           /^(\d{4})-(\d{2})-(\d{2})$/,
-          // DD.MM.YYYY format
           /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/,
-          // MM/DD/YYYY format
-          /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/,
-          // DD/MM/YYYY format
           /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/
         ];
         
-        // Try ISO format first
         if (formats[0].test(dateStr)) {
           return new Date(dateStr).getTime();
         }
         
-        // Try DD.MM.YYYY format
         const dotMatch = dateStr.match(formats[1]);
         if (dotMatch) {
           const [, day, month, year] = dotMatch;
           return new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`).getTime();
         }
         
-        // Try MM/DD/YYYY or DD/MM/YYYY format
         const slashMatch = dateStr.match(formats[2]);
         if (slashMatch) {
           return new Date(dateStr).getTime();
         }
         
-        // Fallback to direct parsing
         return new Date(dateStr).getTime();
       };
       
@@ -295,19 +295,15 @@ const downloadFilename = lang === 'en' ? 'eurojackpot-history.json' :
       return isAscending ? aDate - bDate : bDate - aDate;
     });
     
-    // Update sort order
     table.dataset.sortOrder = isAscending ? 'asc' : 'desc';
     
-    // Re-append sorted rows
     rows.forEach(row => table.appendChild(row));
     
-    // Update row colors
     rows.forEach((row, index) => {
       row.className = index % 2 === 0 ? "bg-gray-800" : "bg-gray-750";
     });
   };
   
-  // Get translations and other props from the data attributes
   const historyContainer = document.querySelector('[data-history-container]');
   if (historyContainer) {
     const translations = {
@@ -322,27 +318,20 @@ const downloadFilename = lang === 'en' ? 'eurojackpot-history.json' :
     
     const downloadFilename = historyContainer.getAttribute('data-download-filename') || 'eurojackpot-history.json';
     
-    // Initialize the history page
-    initializeHistoryPage(translations, downloadFilename, historicalDraws);
-    
-    // Expand the current year by default
     setTimeout(() => {
       const currentYear = new Date().getFullYear().toString();
       const currentYearElement = document.getElementById(`year-${currentYear}`);
       if (currentYearElement) {
         currentYearElement.classList.add('expanded');
-        // Rotate the arrow icon
         const button = currentYearElement.previousElementSibling;
         if (button) {
           const icon = button.querySelector('svg');
           if (icon) icon.classList.add('rotate-180');
         }
       } else {
-        // If current year doesn't exist, expand the most recent year
         const yearContainers = document.querySelectorAll('[id^="year-"]');
         if (yearContainers.length > 0) {
           yearContainers[0].classList.add('expanded');
-          // Rotate the arrow icon
           const button = yearContainers[0].previousElementSibling;
           if (button) {
             const icon = button.querySelector('svg');
@@ -351,5 +340,45 @@ const downloadFilename = lang === 'en' ? 'eurojackpot-history.json' :
         }
       }
     }, 0);
+  }
+</script>
+
+<script>
+  import { initializeHistoryPage } from './historyPage';
+  
+  console.log('[HistoryPageComponent Module] Script loaded');
+  
+  // Wait for DOM content to be fully loaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('[HistoryPageComponent Module] DOMContentLoaded event fired');
+      initializeIfReady();
+    });
+  } else {
+    console.log('[HistoryPageComponent Module] DOM already loaded');
+    initializeIfReady();
+  }
+  
+  function initializeIfReady() {
+    const data = (window as any).historyPageData;
+    if (!data) {
+      console.error('[HistoryPageComponent Module] No historyPageData found in window');
+      return;
+    }
+    
+    const { historicalDraws, translations, downloadFilename } = data;
+    
+    if (!historicalDraws || historicalDraws.length === 0) {
+      console.error('[HistoryPageComponent Module] No historical draws in data');
+      return;
+    }
+    
+    console.log('[HistoryPageComponent Module] About to call initializeHistoryPage with', historicalDraws.length, 'draws');
+    try {
+      initializeHistoryPage(translations, downloadFilename, historicalDraws);
+      console.log('[HistoryPageComponent Module] initializeHistoryPage completed successfully');
+    } catch (error) {
+      console.error('[HistoryPageComponent Module] Error calling initializeHistoryPage:', error);
+    }
   }
 </script>

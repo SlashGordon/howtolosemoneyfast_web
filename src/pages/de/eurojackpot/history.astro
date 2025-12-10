@@ -1,7 +1,7 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import HistoryPageComponent from '../../components/HistoryPageComponent.astro';
-import { historicalDraws } from '../../data/historicalEurojackpot';
+import Layout from '../../../layouts/Layout.astro';
+import HistoryPageComponent from '../../../components/HistoryPageComponent.astro';
+import { getHistoricalDraws } from '../../../data/historicalEurojackpot';
 
 const translations = {
   backToHome: "← Zurück zur Startseite",
@@ -35,8 +35,10 @@ const translations = {
   triplet: "Drilling",
   occurrences: "Vorkommen"
 };
+
+const historicalDraws = await getHistoricalDraws();
 ---
 
-<Layout title={`EuroJackpot Historische Daten & Statistiken | Komplette Ziehungshistorie 2012-${new Date().getFullYear()}`} description={`Zugriff auf vollständige EuroJackpot-Daten von 2012-${new Date().getFullYear()}. Ziehungsstatistiken, Zahlenhäufigkeiten, heiße/kalte Zahlen und JSON-Download für Analysen.`} lang="de">
-  <HistoryPageComponent lang="de" translations={translations} />
+<Layout title={`EuroJackpot Historische Daten & Statistiken | Komplette Ziehungshistorie 2017-${new Date().getFullYear()}`} description={`Zugriff auf vollständige EuroJackpot-Daten von 2017-${new Date().getFullYear()}. Ziehungsstatistiken, Zahlenhäufigkeiten, heiße/kalte Zahlen und JSON-Download für Analysen.`} lang="de">
+  <HistoryPageComponent lang="de" translations={translations} historicalDraws={historicalDraws} />
 </Layout>

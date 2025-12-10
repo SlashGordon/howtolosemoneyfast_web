@@ -1,0 +1,44 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import HistoryPageComponent from '../../../components/HistoryPageComponent.astro';
+import { getHistoricalDraws } from '../../../data/historicalLotto6aus49';
+
+const translations = {
+  backToHome: "← Zurück zur Startseite",
+  title: "Lotto 6 aus 49 Historie",
+  description: "Vollständige historische Aufzeichnung aller Lotto 6 aus 49 Ziehungen.",
+  downloadJson: "Als JSON herunterladen",
+  copyClipboard: "In Zwischenablage kopieren",
+  mainNumbersFreq: "Reguläre Zahlen Häufigkeit",
+  euroNumbersFreq: "Bonuszahlen Häufigkeit",
+  sumTrends: "Summentrends im Zeitverlauf",
+  hotColdNumbers: "Heiße und kalte Zahlen",
+  hotMainNumbers: "Heiße reguläre Zahlen",
+  hotEuroNumbers: "Heiße Bonuszahlen",
+  coldMainNumbers: "Kalte reguläre Zahlen",
+  coldEuroNumbers: "Kalte Bonuszahlen",
+  historicalDraws: "Historische Ziehungen",
+  date: "Datum",
+  mainNumbers: "Reguläre Zahlen",
+  euroNumbers: "Bonuszahlen",
+  frequency: "Häufigkeit",
+  mainNumbersSum: "Reguläre Zahlen Summe",
+  euroNumbersSum: "Bonuszahlen Summe",
+  number: "Zahl",
+  copiedSuccess: "JSON-Daten in Zwischenablage kopiert!",
+  copyError: "Fehler beim Kopieren in die Zwischenablage. Bitte versuchen Sie es erneut.",
+  pairAnalysis: "Paaranalyse",
+  mostCommonPairs: "Häufigste Paare",
+  mostCommonTriplets: "Häufigste Drillinge",
+  mostCommonEuroPairs: "Häufigste Bonuspaare",
+  pair: "Paar",
+  triplet: "Drilling",
+  occurrences: "Vorkommen"
+};
+
+const historicalDraws = await getHistoricalDraws();
+---
+
+<Layout title="Lotto 6 aus 49 Historische Daten & Statistiken | Vollständige Ziehungshistorie" description="Zugriff auf vollständige Lotto 6 aus 49 historische Daten. Ziehungsstatistiken, Zahlenhäufigkeiten, heiße/kalte Zahlen anzeigen und JSON-Daten zur Analyse herunterladen.">
+  <HistoryPageComponent lang="de" translations={translations} lotteryType="lotto6aus49" historicalDraws={historicalDraws} />
+</Layout>
