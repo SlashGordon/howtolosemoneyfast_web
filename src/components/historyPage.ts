@@ -97,8 +97,12 @@ function initializeCharts(
   console.log('[initializeCharts] Starting with', historicalDraws.length, 'draws');
   
   // Detect ranges from data
-  const mainNumbers = historicalDraws.flatMap(d => d.mainNumbers || (d as any).regular_numbers || []);
-  const euroNumbers = historicalDraws.flatMap(d => d.euroNumbers || (d as any).bonus_numbers || []);
+  const mainNumbers = historicalDraws
+    .flatMap(d => d.mainNumbers || (d as any).regular_numbers || [])
+    .filter((n: number) => typeof n === 'number' && n >= 0);
+  const euroNumbers = historicalDraws
+    .flatMap(d => d.euroNumbers || (d as any).bonus_numbers || [])
+    .filter((n: number) => typeof n === 'number' && n >= 0);
   
   console.log('[initializeCharts] Main numbers array:', mainNumbers.slice(0, 10), '... Total:', mainNumbers.length);
   console.log('[initializeCharts] Euro numbers array:', euroNumbers.slice(0, 10), '... Total:', euroNumbers.length);
@@ -125,13 +129,13 @@ function initializeCharts(
   
   historicalDraws.forEach(draw => {
     // Count main numbers (support both formats)
-    const mains = draw.mainNumbers || (draw as any).regular_numbers || [];
+    const mains = (draw.mainNumbers || (draw as any).regular_numbers || []).filter((n: number) => typeof n === 'number' && n >= 0);
     mains.forEach((num: number) => {
       if (mainNumberFrequency[num] !== undefined) mainNumberFrequency[num]++;
     });
     
     // Count euro numbers (support both formats)
-    const euros = draw.euroNumbers || (draw as any).bonus_numbers || [];
+    const euros = (draw.euroNumbers || (draw as any).bonus_numbers || []).filter((n: number) => typeof n === 'number' && n >= 0);
     euros.forEach((num: number) => {
       if (euroNumberFrequency[num] !== undefined) euroNumberFrequency[num]++;
     });
@@ -365,8 +369,12 @@ function displayHotColdNumbers(historicalDraws: EurojackpotNumbers[]): void {
   console.log('[displayHotColdNumbers] Starting with', historicalDraws.length, 'draws');
   
   // Detect ranges from data
-  const mainNumbers = historicalDraws.flatMap(d => d.mainNumbers || (d as any).regular_numbers || []);
-  const euroNumbers = historicalDraws.flatMap(d => d.euroNumbers || (d as any).bonus_numbers || []);
+  const mainNumbers = historicalDraws
+    .flatMap(d => d.mainNumbers || (d as any).regular_numbers || [])
+    .filter((n: number) => typeof n === 'number' && n >= 0);
+  const euroNumbers = historicalDraws
+    .flatMap(d => d.euroNumbers || (d as any).bonus_numbers || [])
+    .filter((n: number) => typeof n === 'number' && n >= 0);
   
   console.log('[displayHotColdNumbers] Total main numbers:', mainNumbers.length, 'Total euro numbers:', euroNumbers.length);
   
@@ -389,13 +397,13 @@ function displayHotColdNumbers(historicalDraws: EurojackpotNumbers[]): void {
   
   historicalDraws.forEach(draw => {
     // Count main numbers (support both formats)
-    const mains = draw.mainNumbers || (draw as any).regular_numbers || [];
+    const mains = (draw.mainNumbers || (draw as any).regular_numbers || []).filter((n: number) => typeof n === 'number' && n >= 0);
     mains.forEach((num: number) => {
       if (mainNumberFrequency[num] !== undefined) mainNumberFrequency[num]++;
     });
     
     // Count euro numbers (support both formats)
-    const euros = draw.euroNumbers || (draw as any).bonus_numbers || [];
+    const euros = (draw.euroNumbers || (draw as any).bonus_numbers || []).filter((n: number) => typeof n === 'number' && n >= 0);
     euros.forEach((num: number) => {
       if (euroNumberFrequency[num] !== undefined) euroNumberFrequency[num]++;
     });
@@ -547,17 +555,30 @@ function displayEuroPairsInContainer(
   const container = document.getElementById(containerId);
   if (container) {
     pairs.forEach(([combination, frequency]) => {
+      // Guard against invalid frequency
+      const freq = Number.isFinite(frequency) ? frequency : 0;
+      
       const pairElement = document.createElement('div');
       pairElement.className = 'flex justify-between items-center bg-gray-700 px-3 py-2 rounded';
       
-      const numbers = combination.split('-').map(num => parseInt(num));
+      // Parse numbers safely and filter out NaN
+      const numbers = combination
+        .split('-')
+        .map(part => Number(part))
+        .filter(n => Number.isFinite(n) && n >= 0);
+      
+      if (numbers.length < 2) {
+        // Skip invalid or incomplete pairs
+        return;
+      }
+      
       const numbersHtml = numbers.map(num => 
         `<span class="inline-block w-6 h-6 rounded-full bg-yellow-500 text-white text-center text-xs leading-6">${num}</span>`
       ).join(' ');
       
       pairElement.innerHTML = `
         <div class="flex items-center space-x-1">${numbersHtml}</div>
-        <span class="text-yellow-300 font-semibold">${frequency}x</span>
+        <span class="text-yellow-300 font-semibold">${freq}x</span>
       `;
       
       container.appendChild(pairElement);
