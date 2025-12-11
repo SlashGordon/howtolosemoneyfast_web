@@ -42,9 +42,12 @@ export interface Props {
 const { lang, translations, historicalDraws, lotteryType = 'eurojackpot' } = Astro.props;
 const homeLink = lang === 'en' ? '/' : `/${lang}/`;
 const dateFormat = lang === 'en' ? 'en-US' : lang === 'de' ? 'de-DE' : 'es-ES';
-const downloadFilename = lang === 'en' ? 'eurojackpot-history.json' : 
-                         lang === 'de' ? 'eurojackpot-historie.json' : 
-                         'eurojackpot-historial.json';
+
+// Generate filename based on lottery type and language
+const lotteryName = lotteryType === 'lotto6aus49' ? 'lotto6aus49' : 'eurojackpot';
+const downloadFilename = lang === 'en' ? `${lotteryName}-history.json` : 
+                         lang === 'de' ? `${lotteryName}-historie.json` : 
+                         `${lotteryName}-historial.json`;
 
 // Serialize data for client-side scripts
 const historicalDrawsJSON = JSON.stringify(historicalDraws);

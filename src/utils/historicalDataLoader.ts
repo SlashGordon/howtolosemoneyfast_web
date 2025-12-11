@@ -50,11 +50,29 @@ async function loadFromFetch(filename: string): Promise<any[]> {
     
     console.log(`[HistoricalDataLoader] Got response for ${url}, Content-Length: ${response.headers.get('content-length')} bytes`);
     
-    // The server automatically decompresses .gz files, so we get plain JSON
-    const text = await response.text();
-    console.log(`[HistoricalDataLoader] Downloaded ${text.length} characters for file`);
+    // Get the response as an ArrayBuffer for decompression
+    const arrayBuffer = await response.arrayBuffer();
+    console.log(`[HistoricalDataLoader] Downloaded ${arrayBuffer.byteLength} bytes for file`);
     
-    const data = JSON.parse(text);
+    const uint8Array = new Uint8Array(arrayBuffer);
+    
+    // Check if the data is gzipped by looking at the magic number (0x1f8b for gzip)
+    const isGzipped = uint8Array.length >= 2 && uint8Array[0] === 0x1f && uint8Array[1] === 0x8b;
+    
+    let decompressed: string;
+    if (isGzipped) {
+      // Decompress the gzipped data
+      console.log(`[HistoricalDataLoader] Data is gzipped, decompressing...`);
+      decompressed = pako.ungzip(uint8Array, { to: 'string' });
+    } else {
+      // Data is already uncompressed (dev mode)
+      console.log(`[HistoricalDataLoader] Data is not gzipped, using as-is`);
+      decompressed = new TextDecoder().decode(uint8Array);
+    }
+    
+    console.log(`[HistoricalDataLoader] Final data length: ${decompressed.length} characters`);
+    
+    const data = JSON.parse(decompressed);
     return data;
   } catch (error) {
     console.error(`[HistoricalDataLoader] Error fetching ${filename}:`, error);

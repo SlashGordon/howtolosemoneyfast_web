@@ -35,7 +35,6 @@ export abstract class BaseLotteryService<T extends LotteryDraw, N extends Lotter
     
     return filteredData.map(draw => {
       const matches = this.calculateMatches(numbers, draw);
-      const totalMatches = Object.values(matches).reduce((sum, count) => sum + count, 0);
       const prize = this.calculatePrize(matches);
       
       return {

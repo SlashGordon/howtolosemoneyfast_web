@@ -1,9 +1,9 @@
-import { type Lotto6aus49Numbers } from '../types/lotto6aus49';
-
 const COOKIE_NAME = 'lotto6aus49_numbers';
 const COOKIE_EXPIRY_DAYS = 30;
 
-export interface Lotto6aus49SavedNumbers extends Lotto6aus49Numbers {
+export interface Lotto6aus49SavedNumbers {
+  regular: number[];
+  bonus: number[];
   date?: string;
   ticketPrice?: number;
 }

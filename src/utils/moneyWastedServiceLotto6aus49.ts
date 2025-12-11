@@ -28,7 +28,9 @@ export function calculateMoneyWastedLotto6aus49() {
       const ticketPrice = ticket.ticketPrice || 1.20;
       cumulativeSpent += ticketPrice;
 
-      const results = service.checkNumbers(ticket, draw.date, draw.date);
+      // Extract only the number properties for checkNumbers
+      const numbers = { regular: ticket.regular, bonus: ticket.bonus };
+      const results = service.checkNumbers(numbers, draw.date, draw.date);
       results.forEach(result => {
         if (result.prize) {
           cumulativeWon += result.prize;

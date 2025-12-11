@@ -1,5 +1,4 @@
 import './styles.css';
-import Chart from 'chart.js/auto';
 import { EurojackpotComponent } from './components/eurojackpot';
 import { i18n } from './i18n/i18n';
 
