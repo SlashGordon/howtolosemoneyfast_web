@@ -1,6 +1,7 @@
 ---
 import LanguageSwitcher from '../components/LanguageSwitcher.astro';
 import ConsentManager from '../components/ConsentManager.astro';
+import { LOTTERY_CONFIGS } from '../config/lotteries';
 // Import Open Sans font
 import '@fontsource/open-sans/300.css';
 import '@fontsource/open-sans/400.css';
@@ -163,8 +164,30 @@ const alternateURLs = {
             How To Lose Money Fast
           </a>
           <div class="flex items-center space-x-4 sm:space-x-6">
+            {Object.entries(LOTTERY_CONFIGS).map(([key, config]) => {
+              const basePath = key === 'eurojackpot' ? '/' : `/${key}`;
+              const langPrefix = lang === 'en' ? '' : `/${lang}`;
+              const historyPath = key === 'eurojackpot' 
+                ? (lang === 'en' ? '/eurojackpot/history' : `/${lang}/eurojackpot/history`)
+                : `${langPrefix}${basePath}/history`;
+              
+              return (
+                <div class="relative group">
+                  <button class="text-gray-300 hover:text-white px-2 py-1 sm:px-3 sm:py-2 rounded-md text-sm font-medium flex items-center">
+                    {config.name}
+                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                  </button>
+                  <div class="absolute left-0 mt-2 w-48 bg-gray-800 border border-gray-600 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <a href={key === 'eurojackpot' ? (lang === 'en' ? '/' : `/${lang}`) : `${langPrefix}${basePath}`} class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700">Number Check</a>
+                    <a href={historyPath} class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700">Stats & History</a>
+                  </div>
+                </div>
+              );
+            })}
+            
             <a href={lang === 'en' ? '/tutorial' : `/${lang}/tutorial`} class="text-gray-300 hover:text-white px-2 py-1 sm:px-3 sm:py-2 rounded-md text-sm font-medium" data-i18n="footer.tutorial">Tutorial</a>
-            <a href={lang === 'en' ? '/history' : `/${lang}/history`} class="text-gray-300 hover:text-white px-2 py-1 sm:px-3 sm:py-2 rounded-md text-sm font-medium" data-i18n="footer.history">Stats & History</a>
             <select id="nav-language-selector" class="bg-gray-700 text-white border border-gray-600 rounded px-2 py-1 text-sm">
               <option value="en">🇺🇸 EN</option>
               <option value="de">🇩🇪 DE</option>

@@ -1,45 +1,16 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import EurojackpotComponent from '../components/EurojackpotComponent.astro';
+import LotteryPage from '../components/LotteryPage.astro';
 ---
 
 <Layout title="EuroJackpot Lottery Analysis Tool | Track Your Spending & Losses" description="Analyze your EuroJackpot lottery spending with our free calculator. Track losses, compare with ETF investments, and understand the real cost of lottery tickets." lang="en">
-  <!-- Hero Section -->
-  <div class="relative overflow-hidden">
-    <div class="absolute inset-0 bg-black opacity-20"></div>
-    
-    <div class="container mx-auto px-4 py-16 relative z-10">
-      <header class="text-center mb-16">
-        <div class="inline-block animate-bounce mb-4">
-          <span class="text-3xl">💸</span>
-        </div>
-        <h1 class="text-5xl md:text-6xl font-extrabold mb-4 text-red-500" data-i18n="title">
-          How To Lose Money Fast
-        </h1>
-      </header>
-      
-      <!-- EuroJackpot Section -->
-      <section id="eurojackpot-container" class="mb-16">
-        <EurojackpotComponent />
-      </section>
-      
-      <!-- Money Wasted Graph Section -->
-      <section id="money-wasted-container" class="mb-16 bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-700 p-6">
-        <h2 class="text-2xl font-bold mb-4 text-red-300" data-i18n="moneyWasted.title">Money Wasted Tracker</h2>
-        <p class="text-gray-300 mb-6" data-i18n="moneyWasted.description">See how much money you've wasted on EuroJackpot tickets over time.</p>
-        <div class="h-80 w-full">
-          <canvas id="money-wasted-chart"></canvas>
-        </div>
-      </section>
-    </div>
-  </div>
+  <LotteryPage lotteryType="eurojackpot" />
 </Layout>
 
 <script>
   import { i18n } from '../i18n/i18n';
   
   document.addEventListener('DOMContentLoaded', () => {
-    // Initialize i18n
     i18n.init();
   });
 </script>

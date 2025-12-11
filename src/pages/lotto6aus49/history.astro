@@ -1,0 +1,45 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import HistoryPageComponent from '../../components/HistoryPageComponent.astro';
+import { getHistoricalDraws } from '../../data/historicalLotto6aus49';
+
+const translations = {
+  backToHome: "← Back to Home",
+  title: "Lotto 6 aus 49 History",
+  description: "Complete historical record of all Lotto 6 aus 49 draws.",
+  downloadJson: "Download as JSON",
+  copyClipboard: "Copy to Clipboard",
+  mainNumbersFreq: "Regular Numbers Frequency",
+  euroNumbersFreq: "Bonus Numbers Frequency",
+  sumTrends: "Sum Trends Over Time",
+  hotColdNumbers: "Hot and Cold Numbers",
+  hotMainNumbers: "Hot Regular Numbers",
+  hotEuroNumbers: "Hot Bonus Numbers",
+  coldMainNumbers: "Cold Regular Numbers",
+  coldEuroNumbers: "Cold Bonus Numbers",
+  historicalDraws: "Historical Draws",
+  date: "Date",
+  mainNumbers: "Regular Numbers",
+  euroNumbers: "Bonus Numbers",
+  frequency: "Frequency",
+  mainNumbersSum: "Regular Numbers Sum",
+  euroNumbersSum: "Bonus Numbers Sum",
+  number: "Number",
+  copiedSuccess: "JSON data copied to clipboard!",
+  copyError: "Failed to copy to clipboard. Please try again.",
+  pairAnalysis: "Pair Analysis",
+  mostCommonPairs: "Most Common Pairs",
+  mostCommonTriplets: "Most Common Triplets",
+  mostCommonEuroPairs: "Most Common Bonus Pairs",
+  pair: "Pair",
+  triplet: "Triplet",
+  occurrences: "Occurrences"
+};
+
+const historicalDraws = await getHistoricalDraws(1000); // Load all available years
+console.log('[lotto6aus49/history.astro] Loaded historical draws:', historicalDraws.length);
+---
+
+<Layout title="Lotto 6 aus 49 Historical Data & Statistics | Complete Draw History" description="Access complete Lotto 6 aus 49 historical data. View draw statistics, number frequencies, hot/cold numbers, and download JSON data for analysis.">
+  <HistoryPageComponent lang="en" translations={translations} lotteryType="lotto6aus49" historicalDraws={historicalDraws} />
+</Layout>

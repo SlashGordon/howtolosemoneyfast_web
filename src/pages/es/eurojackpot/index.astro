@@ -1,0 +1,16 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import LotteryPage from '../../../components/LotteryPage.astro';
+---
+
+<Layout title="Herramienta de Análisis EuroJackpot | Rastree sus Gastos y Pérdidas" description="Analice sus gastos de lotería EuroJackpot con nuestra calculadora gratuita. Rastree pérdidas, compare con inversiones y comprenda el costo real de los boletos de lotería." lang="es">
+  <LotteryPage lotteryType="eurojackpot" />
+</Layout>
+
+<script>
+  import { i18n } from '../../../i18n/i18n';
+  
+  document.addEventListener('DOMContentLoaded', () => {
+    i18n.init();
+  });
+</script>

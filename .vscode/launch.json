@@ -5,7 +5,7 @@
       "type": "chrome",
       "request": "launch",
       "name": "Debug TypeScript in Chrome",
-      "url": "http://localhost:5173",
+      "url": "http://localhost:4322",
       "webRoot": "${workspaceFolder}",
       "sourceMaps": true,
       "sourceMapPathOverrides": {
@@ -16,7 +16,7 @@
       "type": "firefox",
       "request": "launch",
       "name": "Debug TypeScript in Firefox",
-      "url": "http://localhost:5173",
+      "url": "http://localhost:4322",
       "webRoot": "${workspaceFolder}",
       "pathMappings": [
         {

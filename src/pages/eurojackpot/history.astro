@@ -1,0 +1,45 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import HistoryPageComponent from '../../components/HistoryPageComponent.astro';
+import { getHistoricalDraws } from '../../data/historicalEurojackpot';
+
+const translations = {
+  backToHome: "← Back to Home",
+  title: "EuroJackpot History",
+  description: "Complete historical record of all EuroJackpot draws.",
+  downloadJson: "Download as JSON",
+  copyClipboard: "Copy to Clipboard",
+  mainNumbersFreq: "Main Numbers Frequency",
+  euroNumbersFreq: "Euro Numbers Frequency",
+  sumTrends: "Sum Trends Over Time",
+  hotColdNumbers: "Hot and Cold Numbers",
+  hotMainNumbers: "Hot Main Numbers",
+  hotEuroNumbers: "Hot Euro Numbers",
+  coldMainNumbers: "Cold Main Numbers",
+  coldEuroNumbers: "Cold Euro Numbers",
+  historicalDraws: "Historical Draws",
+  date: "Date",
+  mainNumbers: "Main Numbers",
+  euroNumbers: "Euro Numbers",
+  frequency: "Frequency",
+  mainNumbersSum: "Main Numbers Sum",
+  euroNumbersSum: "Euro Numbers Sum",
+  number: "Number",
+  copiedSuccess: "JSON data copied to clipboard!",
+  copyError: "Failed to copy to clipboard. Please try again.",
+  pairAnalysis: "Pair Analysis",
+  mostCommonPairs: "Most Common Pairs",
+  mostCommonTriplets: "Most Common Triplets",
+  mostCommonEuroPairs: "Most Common Euro Pairs",
+  pair: "Pair",
+  triplet: "Triplet",
+  occurrences: "Occurrences"
+};
+
+const historicalDraws = await getHistoricalDraws(1000); // Load all available years
+console.log('[eurojackpot/history.astro] Loaded historical draws:', historicalDraws.length);
+---
+
+<Layout title={`EuroJackpot Historical Data & Statistics | Complete Draw History 2017-${new Date().getFullYear()}`} description={`Access complete EuroJackpot historical data from 2017-${new Date().getFullYear()}. View draw statistics, number frequencies, hot/cold numbers, and download JSON data for analysis.`}>
+  <HistoryPageComponent lang="en" translations={translations} historicalDraws={historicalDraws} />
+</Layout>

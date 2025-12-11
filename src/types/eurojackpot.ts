@@ -4,6 +4,7 @@ export interface EurojackpotNumbers {
   date?: string;
   ticketPrice?: number; // Price of the ticket in euros
   prizeDistribution?: Record<string, number>; // Prize distribution data
+  [key: string]: any;
 }
 
 export interface EurojackpotResult {

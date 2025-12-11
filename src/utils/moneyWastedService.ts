@@ -1,18 +1,31 @@
 import { type MoneyWastedData } from '../types/eurojackpot';
 import { getNumbersFromCookie } from './cookieService';
 
-const DEFAULT_TICKET_PRICE = 2.60; // Default price in euros
 
-import { historicalDraws } from '../data/historicalEurojackpot';
+const DEFAULT_TICKET_PRICE = 2.60; // Default price in euros
 
 // Average annual ETF return (8% is a reasonable estimate for long-term market returns)
 const ANNUAL_ETF_RETURN = 0.08;
 
-export const calculateMoneyWasted = (): MoneyWastedData => {
+export const calculateMoneyWasted = (historicalDrawsData?: any[]): MoneyWastedData => {
   const savedNumbers = getNumbersFromCookie();
   console.log('Calculating money wasted for saved numbers:', savedNumbers);
   
   if (savedNumbers.length === 0) {
+    return {
+      dates: [],
+      amounts: [],
+      etfAmounts: [],
+      totalWasted: 0,
+      totalEtfValue: 0
+    };
+  }
+  
+  // Use provided historical draws or empty array
+  const historicalDraws = historicalDrawsData || [];
+  
+  if (historicalDraws.length === 0) {
+    console.warn('No historical draws available for money wasted calculation');
     return {
       dates: [],
       amounts: [],
@@ -30,16 +43,6 @@ export const calculateMoneyWasted = (): MoneyWastedData => {
       const dateB = b.date || '';
       return dateA.localeCompare(dateB);
     });
-  
-  if (sortedDraws.length === 0) {
-    return {
-      dates: [],
-      amounts: [],
-      etfAmounts: [],
-      totalWasted: 0,
-      totalEtfValue: 0
-    };
-  }
   
   const dates: string[] = [];
   const amounts: number[] = [];
