@@ -2,64 +2,6 @@
 
 A satirical educational website about lottery games and financial decisions, built with Astro.
 
-## 🚀 Project Structure
-
-```
-/
-├── public/
-│   ├── robots.txt
-│   └── .htaccess
-├── src/
-│   ├── components/
-│   │   ├── ConsentManager.astro
-│   │   ├── EurojackpotComponent.astro
-│   │   ├── LanguageSwitcher.astro
-│   │   └── eurojackpot.ts
-│   ├── data/
-│   │   └── historicalEurojackpot.ts
-│   ├── i18n/
-│   │   ├── i18n.ts
-│   │   └── translations.ts
-│   ├── layouts/
-│   │   └── Layout.astro
-│   ├── pages/
-│   │   ├── index.astro
-│   │   ├── impressum.astro
-│   │   ├── privacy.astro
-│   │   ├── 404.astro
-│   │   ├── sitemap-custom.xml.ts
-│   │   ├── de/
-│   │   │   ├── index.astro
-│   │   │   ├── impressum.astro
-│   │   │   └── privacy.astro
-│   │   └── es/
-│   │       ├── index.astro
-│   │       ├── impressum.astro
-│   │       └── privacy.astro
-│   ├── types/
-│   │   ├── eurojackpot.ts
-│   │   └── index.ts
-│   ├── utils/
-│   │   ├── cookieService.ts
-│   │   ├── dateUtils.ts
-│   │   ├── eurojackpotService.ts
-│   │   ├── moneyWastedService.ts
-│   │   └── profitLossCalculator.ts
-│   ├── main.ts
-│   └── styles.css
-├── scripts/
-│   └── downloadEurojackpotData.ts
-├── .github/
-│   └── workflows/
-│       ├── deploy.yml
-│       └── test.yml
-├── astro.config.mjs
-├── package.json
-├── tailwind.config.mjs
-├── tsconfig.json
-└── tsconfig.scripts.json
-```
-
 ## 🧞 Commands
 
 All commands are run from the root of the project, from a terminal:
