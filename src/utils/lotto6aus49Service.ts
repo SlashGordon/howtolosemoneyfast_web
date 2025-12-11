@@ -36,14 +36,39 @@ export class Lotto6aus49Service extends BaseLotteryService<Lotto6aus49Draw, Lott
     
     return {
       regular: regularMatches,
-      bonus: bonusMatches
+      bonus: bonusMatches,
+      // include draw so calculatePrize can use actual distribution
+      draw: draw as unknown as number
     };
   }
 
   protected calculatePrize(matches: Record<string, number>): number {
     const regularMatches = matches.regular;
-    const bonusMatch = matches.bonus > 0;
+    const bonusMatches = matches.bonus;
+    const bonusMatch = bonusMatches > 0;
+    const draw = matches.draw as unknown as Lotto6aus49Draw;
     
+    // Use actual prize distribution from the draw if available
+    // Lotto 6aus49 distributions use keys like:
+    //   "3", "4", "5", "6" (no Superzahl match)
+    //   "5 + SZ", "6 + SZ" (Superzahl match, newer format)
+    //   "5 + ZZ", "6 + ZZ" (older format)
+    if ((draw as any)?.prize_distribution) {
+      const dist = (draw as any).prize_distribution as Record<string, number>;
+      const keysToTry: string[] = [];
+      if (bonusMatch) {
+        keysToTry.push(`${regularMatches} + SZ`);
+        keysToTry.push(`${regularMatches} + ZZ`);
+      }
+      keysToTry.push(`${regularMatches}`);
+
+      for (const k of keysToTry) {
+        const prize = dist[k];
+        if (typeof prize === 'number') return prize;
+      }
+    }
+    
+    // Fallback estimated prizes
     if (regularMatches === 6) return 1000000;
     if (regularMatches === 5 && bonusMatch) return 100000;
     if (regularMatches === 5) return 3000;

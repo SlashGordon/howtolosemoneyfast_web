@@ -23,6 +23,13 @@ interface NumberWithFrequency {
   frequency: number;
 }
 
+function hideSpinner(chartId: string): void {
+  const spinner = document.getElementById(`${chartId}-spinner`);
+  if (spinner) {
+    spinner.classList.add('hidden');
+  }
+}
+
 export function initializeHistoryPage(
   translations: Translations,
   downloadFilename: string,
@@ -221,6 +228,11 @@ function createMainNumbersChart(
               maxTicksLimit: 10
             }
           }
+        },
+        animation: {
+          onComplete: () => {
+            hideSpinner('mainNumbersChart');
+          }
         }
       }
     });
@@ -284,6 +296,11 @@ function createEuroNumbersChart(
             ticks: {
               color: 'rgba(255, 255, 255, 0.7)'
             }
+          }
+        },
+        animation: {
+          onComplete: () => {
+            hideSpinner('euroNumbersChart');
           }
         }
       }
@@ -358,6 +375,11 @@ function createSumTrendsChart(
               autoSkip: true,
               maxTicksLimit: 10
             }
+          }
+        },
+        animation: {
+          onComplete: () => {
+            hideSpinner('sumTrendsChart');
           }
         }
       }

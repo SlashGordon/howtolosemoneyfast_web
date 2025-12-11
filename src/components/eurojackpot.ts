@@ -23,7 +23,7 @@ const config: LotteryConfig = {
 export class EurojackpotComponentNew extends BaseLotteryComponent<any, EurojackpotNumbers> {
   constructor(containerId: string) {
     super(containerId, EurojackpotService.getInstance(), config);
-    this.service.initialize().then(() => this.init());
+    this.init();
   }
 
   protected getSavedNumbers(): EurojackpotNumbers[] {
@@ -87,6 +87,35 @@ export class EurojackpotComponentNew extends BaseLotteryComponent<any, Eurojackp
     
     mainNumberInputs.forEach(input => input.value = '');
     euroNumberInputs.forEach(input => input.value = '');
+  }
+
+  protected handleBulkImport(data: string): void {
+    const parsed = JSON.parse(data);
+    if (!Array.isArray(parsed)) throw new Error('Invalid format');
+    const saved = getNumbersFromCookie();
+    let imported = 0;
+    parsed.forEach((entry: any) => {
+      let ticket: any = null;
+      if (Array.isArray(entry)) {
+        const mainNumbers = entry.slice(0, 5).map((n: any) => Number(n));
+        const euro = entry.slice(5, 7).map((n: any) => Number(n));
+        ticket = { mainNumbers, euroNumbers: euro, date: new Date().toISOString().split('T')[0], ticketPrice: config.defaultTicketPrice };
+      } else if (entry && typeof entry === 'object' && Array.isArray(entry.mainNumbers) && Array.isArray(entry.euroNumbers)) {
+        const mainNumbers = entry.mainNumbers.map((n: any) => Number(n));
+        const euroNumbers = entry.euroNumbers.map((n: any) => Number(n));
+        const ticketPrice = Number(entry.ticketPrice) || config.defaultTicketPrice;
+        const date = typeof entry.date === 'string' ? entry.date : new Date().toISOString().split('T')[0];
+        ticket = { mainNumbers, euroNumbers, date, ticketPrice };
+      }
+      if (ticket && this.service['validateNumbers'](ticket)) {
+        saved.push(ticket);
+        imported++;
+      }
+    });
+    saveNumbersToCookie(saved);
+    this.loadSavedNumbers();
+    this.updateMoneyWastedChart();
+    alert(i18n.translate('eurojackpot.bulkImportSuccess').replace('{count}', String(imported)));
   }
 
   protected createSavedNumberElement(numbers: EurojackpotNumbers, index: number): HTMLElement {

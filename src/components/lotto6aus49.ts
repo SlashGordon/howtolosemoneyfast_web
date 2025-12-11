@@ -21,7 +21,7 @@ const config: LotteryConfig = {
   i18nPrefix: 'lotto6aus49'
 };
 
-export class Lotto6aus49ComponentNew extends BaseLotteryComponent<Lotto6aus49Draw, Lotto6aus49Numbers> {
+export class Lotto6aus49Component extends BaseLotteryComponent<Lotto6aus49Draw, Lotto6aus49Numbers> {
   constructor(containerId: string) {
     super(containerId, Lotto6aus49Service.getInstance(), config);
     this.init();
@@ -29,6 +29,36 @@ export class Lotto6aus49ComponentNew extends BaseLotteryComponent<Lotto6aus49Dra
 
   protected getSavedNumbers(): Lotto6aus49SavedNumbers[] {
     return getNumbersFromCookie();
+  }
+
+  protected handleBulkImport(data: string): void {
+    const parsed = JSON.parse(data);
+    if (!Array.isArray(parsed)) throw new Error('Invalid format');
+    const saved: any[] = getNumbersFromCookie();
+    let imported = 0;
+    parsed.forEach((entry: any) => {
+      let ticket: any = null;
+      if (Array.isArray(entry)) {
+        const regular = entry.slice(0, 6).map((n: any) => Number(n));
+        const bonusVal = entry[6];
+        const bonus = bonusVal === undefined || bonusVal === null ? [] : [Number(bonusVal)];
+        ticket = { regular, bonus, date: new Date().toISOString().split('T')[0], ticketPrice: config.defaultTicketPrice };
+      } else if (entry && typeof entry === 'object' && Array.isArray(entry.regular)) {
+        const regular = entry.regular.map((n: any) => Number(n));
+        const bonusArray = Array.isArray(entry.bonus) ? entry.bonus.map((n: any) => Number(n)) : (entry.bonus != null ? [Number(entry.bonus)] : []);
+        const ticketPrice = Number(entry.ticketPrice) || config.defaultTicketPrice;
+        const date = typeof entry.date === 'string' ? entry.date : new Date().toISOString().split('T')[0];
+        ticket = { regular, bonus: bonusArray, date, ticketPrice };
+      }
+      if (ticket && this.service['validateNumbers'](ticket)) {
+        saved.push(ticket);
+        imported++;
+      }
+    });
+    saveNumbersToCookie(saved as any);
+    this.loadSavedNumbers();
+    this.updateMoneyWastedChart();
+    alert(i18n.translate('lotto6aus49.bulkImportSuccess').replace('{count}', String(imported)));
   }
 
   protected saveNumbers(numbers: Lotto6aus49SavedNumbers): void {
@@ -65,12 +95,12 @@ export class Lotto6aus49ComponentNew extends BaseLotteryComponent<Lotto6aus49Dra
     const regular = regularInputs.map(input => parseInt(input.value, 10));
     const bonus = bonusInput?.value ? [parseInt(bonusInput.value, 10)] : [];
     
-    const numbers: Lotto6aus49SavedNumbers = {
+    const numbers = {
       regular,
       bonus,
       date: new Date().toISOString().split('T')[0],
       ticketPrice
-    };
+    } as any;
     
     if (!this.service['validateNumbers'](numbers)) {
       alert(i18n.translate('lotto6aus49.invalidNumbers'));
@@ -127,7 +157,7 @@ export class Lotto6aus49ComponentNew extends BaseLotteryComponent<Lotto6aus49Dra
     
     const drawDate = result.draw.date || 'Unknown';
     const regularStr = result.draw.regular_numbers.join(', ');
-    const bonusStr = result.draw.bonus_numbers.join(', ');
+    const bonusStr = result.draw.bonus_numbers.filter(n => n !== -1).join(', ');
     const prizeStr = result.prize ? ` - €${result.prize.toFixed(2)}` : '';
     
     element.innerHTML = `
@@ -149,5 +179,3 @@ export class Lotto6aus49ComponentNew extends BaseLotteryComponent<Lotto6aus49Dra
     return element;
   }
 }
-
-export { Lotto6aus49ComponentNew as Lotto6aus49Component };

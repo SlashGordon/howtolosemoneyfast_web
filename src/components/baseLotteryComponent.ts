@@ -23,6 +23,7 @@ export abstract class BaseLotteryComponent<T extends LotteryDraw, N extends Lott
   protected resultsContainer: HTMLElement | null = null;
   protected moneyWastedChart: Chart | null = null;
   protected config: LotteryConfig;
+  // Removed spinner overlays; rely on Chart.js animation callbacks
 
   constructor(containerId: string, service: BaseLotteryService<T, N>, config: LotteryConfig) {
     this.container = document.getElementById(containerId) as HTMLElement;
@@ -34,6 +35,10 @@ export abstract class BaseLotteryComponent<T extends LotteryDraw, N extends Lott
   }
 
   protected async init(): Promise<void> {
+    // Render without spinners
+    this.render();
+    // Show chart spinner immediately so users see feedback at page start
+    this.ensureChartSpinner('money-wasted-chart').show();
     await this.service.initialize();
     this.render();
     this.savedNumbersContainer = document.getElementById('saved-numbers');
@@ -41,6 +46,7 @@ export abstract class BaseLotteryComponent<T extends LotteryDraw, N extends Lott
     this.updateTranslations();
     this.bindEvents();
     this.loadSavedNumbers();
+    // Build chart; spinner will hide on animation complete
     this.initMoneyWastedChart();
     
     document.addEventListener('languageChanged', () => {
@@ -105,9 +111,12 @@ export abstract class BaseLotteryComponent<T extends LotteryDraw, N extends Lott
               </div>
             </div>
             
-            <div class="flex flex-wrap gap-3">
+            <div class="flex flex-wrap gap-3 items-center">
               <button type="submit" class="inline-flex bg-${this.config.mainColor}-500 hover:bg-${this.config.mainColor}-600 text-white font-medium py-3 px-6 rounded-md transition-all duration-300 shadow-md hover:shadow-lg items-center justify-center">
                 <span data-i18n="${this.config.i18nPrefix}.saveCheck">Save & Check</span>
+              </button>
+              <button id="bulk-import-open" type="button" class="inline-flex bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-3 px-4 rounded-md transition-all duration-300 shadow-md hover:shadow-lg items-center justify-center">
+                <span data-i18n="${this.config.i18nPrefix}.bulkImport">Bulk Import</span>
               </button>
             </div>
           </form>
@@ -149,6 +158,24 @@ export abstract class BaseLotteryComponent<T extends LotteryDraw, N extends Lott
             <p class="text-gray-500 italic" data-i18n="${this.config.i18nPrefix}.noNumbersSaved">None</p>
           </div>
         </div>
+
+        <!-- Overlay Modal for Bulk Import -->
+        <div id="bulk-import-overlay" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 flex items-center justify-center">
+          <div class="bg-gray-800 w-full max-w-2xl mx-4 rounded-lg shadow-xl border border-gray-700">
+            <div class="px-5 py-4 border-b border-gray-700 flex justify-between items-center">
+              <h4 class="text-lg font-semibold text-${this.config.mainColor}-300" data-i18n="${this.config.i18nPrefix}.bulkImport">Bulk Import</h4>
+              <button id="bulk-import-close" class="text-gray-400 hover:text-white">✕</button>
+            </div>
+            <div class="px-5 py-4">
+              <p class="text-gray-400 text-sm mb-2" data-i18n="${this.config.i18nPrefix}.bulkImportDescription">Paste JSON array of number sets.</p>
+              <textarea id="bulk-import" class="w-full h-48 p-3 bg-gray-900 border border-gray-700 rounded text-white text-sm" placeholder="Paste JSON here..."></textarea>
+            </div>
+            <div class="px-5 py-4 border-t border-gray-700 flex justify-end gap-2">
+              <button id="bulk-import-cancel" class="bg-gray-700 hover:bg-gray-600 text-white text-sm font-medium py-2 px-3 rounded-md">Cancel</button>
+              <button id="bulk-import-btn" class="bg-${this.config.mainColor}-500 hover:bg-${this.config.mainColor}-600 text-white text-sm font-medium py-2 px-4 rounded-md">Import</button>
+            </div>
+          </div>
+        </div>
         
         <div id="results-container" class="hidden">
           <h3 class="text-xl font-semibold mb-2 text-${this.config.mainColor}-300" data-i18n="${this.config.i18nPrefix}.results">Results</h3>
@@ -179,6 +206,12 @@ export abstract class BaseLotteryComponent<T extends LotteryDraw, N extends Lott
     const form = document.getElementById('lottery-form') as HTMLFormElement;
     const startDateInput = document.getElementById('start-date') as HTMLInputElement;
     const endDateInput = document.getElementById('end-date') as HTMLInputElement;
+    const bulkOpen = document.getElementById('bulk-import-open') as HTMLButtonElement | null;
+    const bulkOverlay = document.getElementById('bulk-import-overlay') as HTMLDivElement | null;
+    const bulkClose = document.getElementById('bulk-import-close') as HTMLButtonElement | null;
+    const bulkCancel = document.getElementById('bulk-import-cancel') as HTMLButtonElement | null;
+    const bulkBtn = document.getElementById('bulk-import-btn') as HTMLButtonElement | null;
+    const bulkText = document.getElementById('bulk-import') as HTMLTextAreaElement | null;
     
     const dateRange = this.getDateRange();
     if (dateRange.firstDate) startDateInput.value = dateRange.firstDate;
@@ -191,6 +224,33 @@ export abstract class BaseLotteryComponent<T extends LotteryDraw, N extends Lott
     
     startDateInput.addEventListener('change', () => this.updateResultsForDateChange());
     endDateInput.addEventListener('change', () => this.updateResultsForDateChange());
+
+    if (bulkOpen && bulkOverlay) {
+      bulkOpen.addEventListener('click', () => {
+        bulkOverlay.classList.remove('hidden');
+      });
+    }
+
+    const closeOverlay = () => {
+      if (bulkOverlay) bulkOverlay.classList.add('hidden');
+    };
+
+    if (bulkClose) bulkClose.addEventListener('click', closeOverlay);
+    if (bulkCancel) bulkCancel.addEventListener('click', closeOverlay);
+
+    if (bulkBtn && bulkText) {
+      bulkBtn.addEventListener('click', () => {
+        const payload = bulkText.value.trim();
+        if (!payload) return;
+        try {
+          this.handleBulkImport(payload);
+          bulkText.value = '';
+          closeOverlay();
+        } catch (e) {
+          alert('Invalid bulk import format');
+        }
+      });
+    }
   }
 
   protected getDateRange(): { firstDate: string | null; latestDate: string | null } {
@@ -205,6 +265,7 @@ export abstract class BaseLotteryComponent<T extends LotteryDraw, N extends Lott
   }
 
   protected abstract handleFormSubmit(form: HTMLFormElement): void;
+  protected handleBulkImport(_data: string): void { /* optional override in child components */ }
   
   protected updateResultsForDateChange(): void {
     const savedNumbers = this.getSavedNumbers();
@@ -383,15 +444,19 @@ export abstract class BaseLotteryComponent<T extends LotteryDraw, N extends Lott
     }
     
     const ctx = chartCanvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) { return; }
     
     const data = this.calculateMoneyWasted();
-    if (data.dates.length === 0) return;
+    if (data.dates.length === 0) { return; }
     
     if (this.moneyWastedChart) {
       this.moneyWastedChart.destroy();
     }
     
+    // Create and show a spinner while chart animates
+    const spinner = this.ensureChartSpinner('money-wasted-chart');
+    spinner.show();
+
     this.moneyWastedChart = new Chart(ctx, {
       type: 'line',
       data: {
@@ -426,6 +491,10 @@ export abstract class BaseLotteryComponent<T extends LotteryDraw, N extends Lott
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        animation: {
+          onProgress: () => spinner.show(),
+          onComplete: () => { chartCanvas.classList.add('chart-ready'); spinner.hide(); }
+        },
         plugins: {
           legend: {
             display: true,
@@ -474,9 +543,31 @@ export abstract class BaseLotteryComponent<T extends LotteryDraw, N extends Lott
       return;
     }
     
-    this.moneyWastedChart.data.labels = data.dates;
-    this.moneyWastedChart.data.datasets[0].data = data.amounts;
-    this.moneyWastedChart.data.datasets[1].data = data.etfAmounts;
-    this.moneyWastedChart.update();
+    const spinner = this.ensureChartSpinner('money-wasted-chart');
+    spinner.show();
+    this.moneyWastedChart!.data.labels = data.dates;
+    this.moneyWastedChart!.data.datasets[0].data = data.amounts;
+    this.moneyWastedChart!.data.datasets[1].data = data.etfAmounts;
+    this.moneyWastedChart!.options.animation = {
+      onProgress: () => spinner.show(),
+      onComplete: () => spinner.hide()
+    };
+    this.moneyWastedChart!.update();
+  }
+
+  private ensureChartSpinner(canvasId: string): { show: () => void; hide: () => void } {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return { show: () => {}, hide: () => {} };
+    let spinner = canvas.previousElementSibling as HTMLElement | null;
+    if (!spinner || !spinner.classList.contains('chart-spinner')) {
+      spinner = document.createElement('div');
+      spinner.className = 'chart-spinner flex items-center gap-2 text-gray-300 mb-3';
+      spinner.innerHTML = '<span class="animate-spin h-5 w-5 border-2 border-white/60 border-t-transparent rounded-full"></span> <span>Loading…</span>';
+      canvas.parentElement?.insertBefore(spinner, canvas);
+    }
+    return {
+      show: () => spinner && spinner.classList.remove('hidden'),
+      hide: () => spinner && spinner.classList.add('hidden')
+    };
   }
 }
